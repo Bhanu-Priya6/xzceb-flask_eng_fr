@@ -1,9 +1,34 @@
-from deep_translator import MyMemoryTranslator
+""" Machine Translation with Watson """
+import os
+from ibm_watson import LanguageTranslatorV3
+from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
+from dotenv import load_dotenv
 
- def englishToFrench(englishText):
-   frenchText = MyMemoryTranslator(source='en', target='fr').translate(englishText) 
-    return frenchText
+load_dotenv()
 
- def frenchToEnglish(frenchText):
-    englishText = MyMemoryTranslator(source='fr', target='en').translate(frenchText) 
-    return englishText
+apikey = os.environ['apikey']
+url = os.environ['url']
+
+authenticator = IAMAuthenticator(apikey)
+language_translator = LanguageTranslatorV3(
+    version='2018-05-01',
+    authenticator=authenticator
+)
+
+language_translator.set_service_url(url)
+
+def english_to_french(english_text):
+    """ Translate text from English to French """
+    translation = language_translator.translate(
+    text=english_text,
+    model_id='en-fr').get_result()
+    french_text = translation['translations'][0]['translation']
+    return french_text
+
+def french_to_english(french_text):
+    """ Translate text from French to English """
+    translation = language_translator.translate(
+    text=french_text,
+    model_id='fr-en').get_result()
+    english_text = translation['translations'][0]['translation']
+    return english_text
